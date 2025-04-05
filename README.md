@@ -2,7 +2,7 @@
 Leveraging Physics-Informed Neural Network(PINN) to simulate airflow patterns around arbitrary geometries(AirFoils) in real-time.
 # AeroPINN
 
-![AeroPINN Banner](assets/aeropinn_banner.jpeg)  
+![AeroPINN Banner](asset/aeropinn_banner.jpeg)  
 *Leveraging Physics-Informed Neural Networks (PINNs) to simulate airflow patterns around arbitrary airfoil geometries in real-time.*
 
 ---
@@ -33,7 +33,7 @@ AeroPINN uses a deep neural network trained on spatial coordinates (\(x, y\)) to
 
 The network leverages automatic differentiation to compute spatial derivatives, ensuring physical consistency.
 
-![PINN Workflow](assets/pinn_workflow.png)
+![PINN Workflow](asset/pinn_workflow.png)
 
 ---
 
