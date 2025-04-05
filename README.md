@@ -33,7 +33,7 @@ AeroPINN uses a deep neural network trained on spatial coordinates (\(x, y\)) to
 
 The network leverages automatic differentiation to compute spatial derivatives, ensuring physical consistency.
 
-![PINN Workflow](asset/pinn_workflow.png)
+![PINN Workflow](asset/pinn_workflow.jpeg)
 
 ---
 
