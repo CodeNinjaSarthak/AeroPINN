@@ -37,6 +37,16 @@ The network leverages automatic differentiation to compute spatial derivatives, 
 
 ---
 
+## 🚀 Team
+
+Meet the minds behind **AeroPINN**:  
+
+- [Sarthak Chauhan](https://github.com/CodeNinjaSarthak)  
+- [Siddharth Patel](https://github.com/sidd707)  
+- [Rohan Singh](https://github.com/Roahn333singh)  
+- [Harish Sivakumar](https://github.com/HarishSivakumar)  
+
+
 ## Installation
 
 ### Prerequisites
