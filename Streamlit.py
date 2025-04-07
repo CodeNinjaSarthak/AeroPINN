@@ -13,23 +13,31 @@ from scipy.interpolate import griddata
 from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 import warnings
-warnings.filterwarnings("ignore")
 
+warnings.filterwarnings("ignore")
 
 
 # code of pca visualization
 def plot_covariance_heatmap(covariance_matrix):
     plt.figure(figsize=(8, 6))
-    heatmap = plt.imshow(covariance_matrix, cmap='coolwarm', interpolation='nearest')
+    heatmap = plt.imshow(covariance_matrix, cmap="coolwarm", interpolation="nearest")
     for i in range(covariance_matrix.shape[0]):
         for j in range(covariance_matrix.shape[1]):
-            plt.text(j, i, f'{covariance_matrix[i, j]:.2f}',
-                     ha='center', va='center', color='black', fontsize=10)
-    plt.title('Covariance Matrix Heatmap')
+            plt.text(
+                j,
+                i,
+                f"{covariance_matrix[i, j]:.2f}",
+                ha="center",
+                va="center",
+                color="black",
+                fontsize=10,
+            )
+    plt.title("Covariance Matrix Heatmap")
     plt.colorbar(heatmap)
-    plt.xticks(np.arange(4), ['p', 'U0', 'U1', 'U2'], rotation=45)
-    plt.yticks(np.arange(4), ['p', 'U0', 'U1', 'U2'])
+    plt.xticks(np.arange(4), ["p", "U0", "U1", "U2"], rotation=45)
+    plt.yticks(np.arange(4), ["p", "U0", "U1", "U2"])
     plt.show()
+
 
 class FieldVisualizer:
     def __init__(self, data, method_name=""):
@@ -41,40 +49,51 @@ class FieldVisualizer:
 
     def filter_data(self, x_range, y_range):
         self.filtered_data = self.data[
-            (self.data['Points:0'] >= x_range[0]) &
-            (self.data['Points:0'] <= x_range[1]) &
-            (self.data['Points:1'] >= y_range[0]) &
-            (self.data['Points:1'] <= y_range[1])
+            (self.data["Points:0"] >= x_range[0])
+            & (self.data["Points:0"] <= x_range[1])
+            & (self.data["Points:1"] >= y_range[0])
+            & (self.data["Points:1"] <= y_range[1])
         ]
 
     def plot_scatter(self, ax, x_data, y_data, c_data, cmap_label):
-        scatter = ax.scatter(x_data, y_data, c=c_data, cmap='viridis', marker='o', s=5)
+        scatter = ax.scatter(x_data, y_data, c=c_data, cmap="viridis", marker="o", s=5)
         cbar = self.fig.colorbar(scatter, ax=ax, label=cmap_label)
 
     def visualize(self):
         self.fig, self.axs = plt.subplots(2, 2, figsize=(12, 10))
-        x_data = self.filtered_data['Points:0']
-        y_data = self.filtered_data['Points:1']
+        x_data = self.filtered_data["Points:0"]
+        y_data = self.filtered_data["Points:1"]
 
-        self.plot_scatter(self.axs[0, 0], x_data, y_data, self.filtered_data['U:0'], 'U0')
-        self.plot_scatter(self.axs[0, 1], x_data, y_data, self.filtered_data['U:1'], 'U1')
-        self.plot_scatter(self.axs[1, 0], x_data, y_data, self.filtered_data['U:2'], 'U2')
-        self.plot_scatter(self.axs[1, 1], x_data, y_data, self.filtered_data['p'], 'Pressure')
+        self.plot_scatter(
+            self.axs[0, 0], x_data, y_data, self.filtered_data["U:0"], "U0"
+        )
+        self.plot_scatter(
+            self.axs[0, 1], x_data, y_data, self.filtered_data["U:1"], "U1"
+        )
+        self.plot_scatter(
+            self.axs[1, 0], x_data, y_data, self.filtered_data["U:2"], "U2"
+        )
+        self.plot_scatter(
+            self.axs[1, 1], x_data, y_data, self.filtered_data["p"], "Pressure"
+        )
 
-        titles = [f'{self.method_name} U0 vs (Point 0, Point 1)', 
-                  f'{self.method_name} U1 vs (Point 0, Point 1)',
-                  f'{self.method_name} U2 vs (Point 0, Point 1)', 
-                  f'{self.method_name} Pressure vs (Point 0, Point 1)']
+        titles = [
+            f"{self.method_name} U0 vs (Point 0, Point 1)",
+            f"{self.method_name} U1 vs (Point 0, Point 1)",
+            f"{self.method_name} U2 vs (Point 0, Point 1)",
+            f"{self.method_name} Pressure vs (Point 0, Point 1)",
+        ]
         for i in range(2):
             for j in range(2):
-                self.axs[i, j].set_xlabel('Point 0')
-                self.axs[i, j].set_ylabel('Point 1')
+                self.axs[i, j].set_xlabel("Point 0")
+                self.axs[i, j].set_ylabel("Point 1")
                 self.axs[i, j].set_title(titles[i * 2 + j])
 
         plt.tight_layout()
-        plt.savefig(f'{self.method_name}_field_visualizer.png', dpi=300, bbox_inches='tight')
+        plt.savefig(
+            f"{self.method_name}_field_visualizer.png", dpi=300, bbox_inches="tight"
+        )
         plt.show()
-        
 
 
 class FlowFieldStreamlines:
@@ -85,38 +104,37 @@ class FlowFieldStreamlines:
 
     def filter_data(self, x_range, y_range):
         self.filtered_data = self.data[
-            (self.data['Points:0'] >= x_range[0]) &
-            (self.data['Points:0'] <= x_range[1]) &
-            (self.data['Points:1'] >= y_range[0]) &
-            (self.data['Points:1'] <= y_range[1])
+            (self.data["Points:0"] >= x_range[0])
+            & (self.data["Points:0"] <= x_range[1])
+            & (self.data["Points:1"] >= y_range[0])
+            & (self.data["Points:1"] <= y_range[1])
         ]
 
     def generate_streamlines(self, x_range, y_range, num_streamlines=15):
         self.filter_data(x_range, y_range)
-        x = self.filtered_data['Points:0']
-        y = self.filtered_data['Points:1']
-        u = self.filtered_data['U:0']
-        v = self.filtered_data['U:1']
+        x = self.filtered_data["Points:0"]
+        y = self.filtered_data["Points:1"]
+        u = self.filtered_data["U:0"]
+        v = self.filtered_data["U:1"]
 
         xi = np.linspace(x_range[0], x_range[1], 100)
         yi = np.linspace(y_range[0], y_range[1], 100)
         xi, yi = np.meshgrid(xi, yi)
 
-        ui = griddata((x, y), u, (xi, yi), method='linear')    
-        vi = griddata((x, y), v, (xi, yi), method='linear')
+        ui = griddata((x, y), u, (xi, yi), method="linear")
+        vi = griddata((x, y), v, (xi, yi), method="linear")
 
         plt.figure(figsize=(10, 6))
-        plt.streamplot(xi, yi, ui, vi, color='k', density=1.5, linewidth=1)
-        plt.scatter(x, y, color='red', s=1)
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title(f'{self.method_name} Flow Field Streamlines')
+        plt.streamplot(xi, yi, ui, vi, color="k", density=1.5, linewidth=1)
+        plt.scatter(x, y, color="red", s=1)
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.title(f"{self.method_name} Flow Field Streamlines")
         plt.xlim(x_range)
         plt.ylim(y_range)
         plt.grid()
-        plt.savefig(f'{self.method_name}_streamlines.png', dpi=300, bbox_inches='tight')
+        plt.savefig(f"{self.method_name}_streamlines.png", dpi=300, bbox_inches="tight")
         plt.show()
-        
 
 
 class PCA:
@@ -149,45 +167,55 @@ class PCA:
         sorted_indices = np.argsort(self.eigenvalues)[::-1]
         self.eigenvalues = self.eigenvalues[sorted_indices]
         self.eigenvectors = self.eigenvectors[:, sorted_indices]
-        
+
     def plot_eigenvalues_plots(self):
         plt.figure(figsize=(8, 6))
-        plt.plot(range(1, len(self.eigenvalues) + 1), self.eigenvalues, marker='o')
-        plt.xlabel('Eigenvalue Index')
-        plt.ylabel('Eigenvalue')
-        plt.title(f'{self.method_name} Eigenvalues in Descending Order')
+        plt.plot(range(1, len(self.eigenvalues) + 1), self.eigenvalues, marker="o")
+        plt.xlabel("Eigenvalue Index")
+        plt.ylabel("Eigenvalue")
+        plt.title(f"{self.method_name} Eigenvalues in Descending Order")
         plt.grid(True)
         plt.show()
-        
-        self.cumulative_variance = np.cumsum(self.eigenvalues) / np.sum(self.eigenvalues)
+
+        self.cumulative_variance = np.cumsum(self.eigenvalues) / np.sum(
+            self.eigenvalues
+        )
         plt.figure(figsize=(8, 6))
-        plt.plot(range(1, len(self.cumulative_variance) + 1), self.cumulative_variance, marker='o')
-        plt.xlabel('Number of Principal Components')
-        plt.ylabel('Cumulative Explained Variance')
-        plt.title(f'{self.method_name} Cumulative Explained Variance Plot')
+        plt.plot(
+            range(1, len(self.cumulative_variance) + 1),
+            self.cumulative_variance,
+            marker="o",
+        )
+        plt.xlabel("Number of Principal Components")
+        plt.ylabel("Cumulative Explained Variance")
+        plt.title(f"{self.method_name} Cumulative Explained Variance Plot")
         plt.grid(True)
         plt.show()
-        
+
     def choose_r(self):
         if self.r is None:
-            self.num_components = np.argmax(self.cumulative_variance >= self.retention) + 1
+            self.num_components = (
+                np.argmax(self.cumulative_variance >= self.retention) + 1
+            )
         else:
-            self.num_components = self.r  
-        
+            self.num_components = self.r
+
     def select_principal_components(self):
         self.choose_r()
-        self.selected_eigenvectors = self.eigenvectors[:, :self.num_components]
-        
+        self.selected_eigenvectors = self.eigenvectors[:, : self.num_components]
+
     def project_data(self):
         self.reduced_data = np.dot(self.scaled_data, self.selected_eigenvectors)
 
     def inverse_transform(self):
-        self.reconstructed_data = np.dot(self.reduced_data, self.selected_eigenvectors.T)
+        self.reconstructed_data = np.dot(
+            self.reduced_data, self.selected_eigenvectors.T
+        )
         self.reconstructed_data = self.scaler.inverse_transform(self.reconstructed_data)
 
     def combine_with_points(self, points):
         combined_data = np.concatenate((self.reconstructed_data, points), axis=1)
-        column_names = ['p', 'U:0', 'U:1', 'U:2', 'Points:0', 'Points:1', 'Points:2']
+        column_names = ["p", "U:0", "U:1", "U:2", "Points:0", "Points:1", "Points:2"]
         combined_df = pd.DataFrame(combined_data, columns=column_names)
         return combined_df
 
@@ -195,10 +223,12 @@ class PCA:
         vf_visualizer = FieldVisualizer(pd_data, self.method_name)
         vf_visualizer.filter_data(x_range=(-0.2, 1.2), y_range=(-0.5, 0.5))
         vf_visualizer.visualize()
-        
+
         streamline_visualizer = FlowFieldStreamlines(pd_data, self.method_name)
-        streamline_visualizer.generate_streamlines(x_range=(-0.2, 1.2), y_range=(-0.5, 0.5))
-        
+        streamline_visualizer.generate_streamlines(
+            x_range=(-0.2, 1.2), y_range=(-0.5, 0.5)
+        )
+
     def perform_PCA(self):
         self.visualize(self.data)
         relevants = self.data_np[:, 0:4]
@@ -212,6 +242,7 @@ class PCA:
         points = self.data_np[:, 4:]
         recon_df = self.combine_with_points(points)
         self.visualize(recon_df)
+
 
 class SVD:
     def __init__(self, data, retention=None, r=None):
@@ -234,45 +265,70 @@ class SVD:
         self.scaled_data = self.scaler.fit_transform(relevants)
 
     def compute_svd(self):
-        self.left_singular_vectors, self.singular_values, self.right_singular_vectors = np.linalg.svd(self.scaled_data, full_matrices=False)
-        
+        (
+            self.left_singular_vectors,
+            self.singular_values,
+            self.right_singular_vectors,
+        ) = np.linalg.svd(self.scaled_data, full_matrices=False)
+
     def plot_singular_values(self):
         plt.figure(figsize=(8, 6))
-        plt.plot(range(1, len(self.singular_values) + 1), self.singular_values, marker='o', color='blue')
-        plt.xlabel('Singular Value Index')
-        plt.ylabel('Singular Value')
-        plt.title(f'{self.method_name} Singular Values')
+        plt.plot(
+            range(1, len(self.singular_values) + 1),
+            self.singular_values,
+            marker="o",
+            color="blue",
+        )
+        plt.xlabel("Singular Value Index")
+        plt.ylabel("Singular Value")
+        plt.title(f"{self.method_name} Singular Values")
         plt.grid(True)
         plt.show()
-        
-        self.cumulative_variance = np.cumsum(self.singular_values ** 2) / np.sum(self.singular_values ** 2)
+
+        self.cumulative_variance = np.cumsum(self.singular_values**2) / np.sum(
+            self.singular_values**2
+        )
         plt.figure(figsize=(8, 6))
-        plt.plot(range(1, len(self.cumulative_variance) + 1), self.cumulative_variance, marker='o')
-        plt.xlabel('Number of Components')
-        plt.ylabel('Cumulative Explained Variance')
-        plt.title(f'{self.method_name} Cumulative Explained Variance Plot')
+        plt.plot(
+            range(1, len(self.cumulative_variance) + 1),
+            self.cumulative_variance,
+            marker="o",
+        )
+        plt.xlabel("Number of Components")
+        plt.ylabel("Cumulative Explained Variance")
+        plt.title(f"{self.method_name} Cumulative Explained Variance Plot")
         plt.grid(True)
         plt.show()
-        
+
     def choose_r(self):
         if self.r is None:
-            self.num_components = np.argmax(self.cumulative_variance >= self.retention) + 1
+            self.num_components = (
+                np.argmax(self.cumulative_variance >= self.retention) + 1
+            )
         else:
-            self.num_components = self.r  
-        
+            self.num_components = self.r
+
     def select_components(self):
         self.choose_r()
-        self.selected_left_singular_vectors = self.left_singular_vectors[:, :self.num_components]
-        self.selected_singular_values = self.singular_values[:self.num_components]
-        self.selected_right_singular_vectors = self.right_singular_vectors[:self.num_components, :]
+        self.selected_left_singular_vectors = self.left_singular_vectors[
+            :, : self.num_components
+        ]
+        self.selected_singular_values = self.singular_values[: self.num_components]
+        self.selected_right_singular_vectors = self.right_singular_vectors[
+            : self.num_components, :
+        ]
 
     def inverse_transform(self):
-        self.reconstructed_data = self.selected_left_singular_vectors @ np.diag(self.selected_singular_values) @ self.selected_right_singular_vectors
+        self.reconstructed_data = (
+            self.selected_left_singular_vectors
+            @ np.diag(self.selected_singular_values)
+            @ self.selected_right_singular_vectors
+        )
         self.reconstructed_data = self.scaler.inverse_transform(self.reconstructed_data)
 
     def combine_with_points(self, points):
         combined_data = np.concatenate((self.reconstructed_data, points), axis=1)
-        column_names = ['p', 'U:0', 'U:1', 'U:2', 'Points:0', 'Points:1', 'Points:2']
+        column_names = ["p", "U:0", "U:1", "U:2", "Points:0", "Points:1", "Points:2"]
         combined_df = pd.DataFrame(combined_data, columns=column_names)
         return combined_df
 
@@ -280,10 +336,12 @@ class SVD:
         vf_visualizer = FieldVisualizer(pd_data, self.method_name)
         vf_visualizer.filter_data(x_range=(-0.2, 1.2), y_range=(-0.5, 0.5))
         vf_visualizer.visualize()
-        
+
         streamline_visualizer = FlowFieldStreamlines(pd_data, self.method_name)
-        streamline_visualizer.generate_streamlines(x_range=(-0.2, 1.2), y_range=(-0.5, 0.5))
-        
+        streamline_visualizer.generate_streamlines(
+            x_range=(-0.2, 1.2), y_range=(-0.5, 0.5)
+        )
+
     def perform_svd(self):
         self.visualize(self.data)
         relevants = self.data_np[:, 0:4]
@@ -296,13 +354,19 @@ class SVD:
         recon_df = self.combine_with_points(points)
         self.visualize(recon_df)
 
-df1=pd.read_csv("/Users/rohansingh/hate_speech/PINN/0012.csv")
+
+df1 = pd.read_csv("Dataset/0012.csv")
 # Sidebar navigation
 with st.sidebar:
-    st.image("https://www.shutterstock.com/image-photo/led-soft-focus-background-600nw-631575830.jpg")
+    st.image(
+        "https://www.shutterstock.com/image-photo/led-soft-focus-background-600nw-631575830.jpg"
+    )
     st.title("AeroPINN")
-    choice = st.radio("Navigation", ["Upload", "Profiling", "Unpiped Data", "Piped Data"])
+    choice = st.radio(
+        "Navigation", ["Upload", "Profiling", "Unpiped Data", "Piped Data"]
+    )
     st.info("Showcasing PINN power with Aerodynamics")
+
 
 # Load existing data if available
 @st.cache_data
@@ -312,6 +376,7 @@ def load_data():
     if os.path.exists("source_data.csv"):
         return pd.read_csv("source_data.csv", index_col=None)
     return None
+
 
 df = load_data()
 
@@ -350,10 +415,12 @@ elif choice == "Unpiped Data":
     for airfoil_to_use in airfoils_to_use:
         for r in range(1, 4):
             st.markdown(f"### Processing Airfoil `{airfoil_to_use}` with r = {r}")
-            
+
             raw_data = df
-            raw_data.dropna(inplace=True)  # Modify here if airfoil-specific data is needed
-            
+            raw_data.dropna(
+                inplace=True
+            )  # Modify here if airfoil-specific data is needed
+
             # --- PCA ---
             start = time.time()
             pca_instance = PCA(raw_data, r=r)
@@ -363,12 +430,20 @@ elif choice == "Unpiped Data":
             st.success(f"PCA completed in {end - start:.2f} seconds.")
 
             # Show PCA images
-            pca_field_path = "/Users/rohansingh/hate_speech/PINN/PCA_field_visualizer.png"
-            pca_stream_path = "/Users/rohansingh/hate_speech/PINN/PCA_streamlines.png"
+            pca_field_path = "PCA_field_visualizer.png"
+            pca_stream_path = "PCA_streamlines.png"
             if os.path.exists(pca_field_path):
-                st.image(pca_field_path, caption=f"PCA Field Visualizer (r={r})", use_column_width=True)
+                st.image(
+                    pca_field_path,
+                    caption=f"PCA Field Visualizer (r={r})",
+                    use_column_width=True,
+                )
             if os.path.exists(pca_stream_path):
-                st.image(pca_stream_path, caption=f"PCA Streamlines (r={r})", use_column_width=True)
+                st.image(
+                    pca_stream_path,
+                    caption=f"PCA Streamlines (r={r})",
+                    use_column_width=True,
+                )
 
             # --- SVD ---
             start = time.time()
@@ -379,12 +454,20 @@ elif choice == "Unpiped Data":
             st.success(f"SVD completed in {end - start:.2f} seconds.")
 
             # Show SVD images
-            svd_field_path = "/Users/rohansingh/hate_speech/PINN/SVD_field_visualizer.png"
-            svd_stream_path = "/Users/rohansingh/hate_speech/PINN/SVD_streamlines.png"
+            svd_field_path = "SVD_field_visualizer.png"
+            svd_stream_path = "SVD_streamlines.png"
             if os.path.exists(svd_field_path):
-                st.image(svd_field_path, caption=f"SVD Field Visualizer (r={r})", use_column_width=True)
+                st.image(
+                    svd_field_path,
+                    caption=f"SVD Field Visualizer (r={r})",
+                    use_column_width=True,
+                )
             if os.path.exists(svd_stream_path):
-                st.image(svd_stream_path, caption=f"SVD Streamlines (r={r})", use_column_width=True)
+                st.image(
+                    svd_stream_path,
+                    caption=f"SVD Streamlines (r={r})",
+                    use_column_width=True,
+                )
 
             st.divider()
 
@@ -398,10 +481,12 @@ elif choice == "Piped Data":
     for airfoil_to_use in airfoils_to_use:
         for r in range(1, 4):
             st.markdown(f"### Processing Airfoil `{airfoil_to_use}` with r = {r}")
-            
+
             raw_data = df1
-            raw_data.dropna(inplace=True)  # Modify here if airfoil-specific data is needed
-            
+            raw_data.dropna(
+                inplace=True
+            )  # Modify here if airfoil-specific data is needed
+
             # --- PCA ---
             start = time.time()
             pca_instance = PCA(raw_data, r=r)
@@ -411,12 +496,20 @@ elif choice == "Piped Data":
             st.success(f"PCA completed in {end - start:.2f} seconds.")
 
             # Show PCA images
-            pca_field_path = "/Users/rohansingh/hate_speech/PINN/PCA_field_visualizer.png"
-            pca_stream_path = "/Users/rohansingh/hate_speech/PINN/PCA_streamlines.png"
+            pca_field_path = "PCA_field_visualizer.png"
+            pca_stream_path = "PCA_streamlines.png"
             if os.path.exists(pca_field_path):
-                st.image(pca_field_path, caption=f"PCA Field Visualizer (r={r})", use_column_width=True)
+                st.image(
+                    pca_field_path,
+                    caption=f"PCA Field Visualizer (r={r})",
+                    use_column_width=True,
+                )
             if os.path.exists(pca_stream_path):
-                st.image(pca_stream_path, caption=f"PCA Streamlines (r={r})", use_column_width=True)
+                st.image(
+                    pca_stream_path,
+                    caption=f"PCA Streamlines (r={r})",
+                    use_column_width=True,
+                )
 
             # --- SVD ---
             start = time.time()
@@ -427,13 +520,19 @@ elif choice == "Piped Data":
             st.success(f"SVD completed in {end - start:.2f} seconds.")
 
             # Show SVD images
-            svd_field_path = "/Users/rohansingh/hate_speech/PINN/SVD_field_visualizer.png"
-            svd_stream_path = "/Users/rohansingh/hate_speech/PINN/SVD_streamlines.png"
+            svd_field_path = "SVD_field_visualizer.png"
+            svd_stream_path = "SVD_streamlines.png"
             if os.path.exists(svd_field_path):
-                st.image(svd_field_path, caption=f"SVD Field Visualizer (r={r})", use_column_width=True)
+                st.image(
+                    svd_field_path,
+                    caption=f"SVD Field Visualizer (r={r})",
+                    use_column_width=True,
+                )
             if os.path.exists(svd_stream_path):
-                st.image(svd_stream_path, caption=f"SVD Streamlines (r={r})", use_column_width=True)
+                st.image(
+                    svd_stream_path,
+                    caption=f"SVD Streamlines (r={r})",
+                    use_column_width=True,
+                )
 
             st.divider()
-
-
