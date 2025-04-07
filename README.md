@@ -47,6 +47,9 @@ Meet the minds behind **AeroPINN**:
 - [Harish Sivakumar](https://github.com/HarishSivakumar)  
 
 
+[Watch Video](https://drive.google.com/file/d/1fhbdXtmCCAgKDjv0YCJm0bsM57_gkuyl/view?usp=sharing)
+
+
 ## Installation
 
 ### Prerequisites
